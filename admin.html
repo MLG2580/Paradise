@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | The Paradise Lagoon</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <main class="admin-main">
+    <!-- Login Section -->
+    <section class="admin-login-section" id="adminLoginSection">
+      <div class="admin-login-box fade-in">
+        <h2>Admin Login</h2>
+        <input type="password" id="adminPassword" placeholder="Enter password" autocomplete="off">
+        <button class="btn btn-primary btn-lg" id="loginBtn">Login</button>
+        <div class="admin-error" id="loginError" style="display:none;">Incorrect password. Try again.</div>
+      </div>
+    </section>
+    <!-- Dashboard Section (hidden by default) -->
+    <section class="admin-panel-section fade-in" id="adminPanelSection" style="display:none;">
+      <div class="admin-header">
+        <h2>Booking Dashboard</h2>
+        <button class="btn" id="logoutBtn">Logout</button>
+      </div>
+      <div class="admin-stats">
+        <div>Total: <span id="statTotal">0</span></div>
+        <div>Pending: <span id="statPending">0</span></div>
+        <div>Accepted: <span id="statAccepted">0</span></div>
+        <div>Declined: <span id="statDeclined">0</span></div>
+      </div>
+      <div class="admin-filters">
+        <label>Filter:
+          <select id="statusFilter">
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="accepted">Accepted</option>
+            <option value="declined">Declined</option>
+          </select>
+        </label>
+        <button class="btn" id="downloadBtn">Download CSV</button>
+        <button class="btn" id="clearBtn">Clear All</button>
+      </div>
+      <div class="admin-bookings-list" id="bookingsList">
+        <!-- Booking cards will be rendered here -->
+      </div>
+      <div class="admin-empty" id="emptyMsg" style="display:none;">No bookings found.</div>
+    </section>
+  </main>
+  <script>
+    // --- Admin Login Logic ---
+    const adminPassword = 'paradise123';
+    const loginSection = document.getElementById('adminLoginSection');
+    const panelSection = document.getElementById('adminPanelSection');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const loginError = document.getElementById('loginError');
+    loginBtn.addEventListener('click', () => {
+      const input = document.getElementById('adminPassword').value;
+      if (input === adminPassword) {
+        loginSection.style.display = 'none';
+        panelSection.style.display = 'block';
+        renderBookings();
+      } else {
+        loginError.style.display = 'block';
+        setTimeout(() => loginError.style.display = 'none', 2000);
+      }
+    });
+    document.getElementById('adminPassword').addEventListener('keydown', e => {
+      if (e.key === 'Enter') loginBtn.click();
+    });
+    logoutBtn.addEventListener('click', () => {
+      panelSection.style.display = 'none';
+      loginSection.style.display = 'flex';
+      document.getElementById('adminPassword').value = '';
+    });
+    // --- Booking Management Logic ---
+    const bookingsList = document.getElementById('bookingsList');
+    const emptyMsg = document.getElementById('emptyMsg');
+    const statusFilter = document.getElementById('statusFilter');
+    const statTotal = document.getElementById('statTotal');
+    const statPending = document.getElementById('statPending');
+    const statAccepted = document.getElementById('statAccepted');
+    const statDeclined = document.getElementById('statDeclined');
+    function getBookings() {
+      return JSON.parse(localStorage.getItem('paradise_bookings')) || [];
+    }
+    function setBookings(arr) {
+      localStorage.setItem('paradise_bookings', JSON.stringify(arr));
+    }
+    // --- Render bookings with date range and status ---
+    function renderBookings() {
+      const filter = statusFilter.value;
+      let bookings = getBookings();
+      // Stats
+      statTotal.textContent = bookings.length;
+      statPending.textContent = bookings.filter(b => b.status === 'pending').length;
+      statAccepted.textContent = bookings.filter(b => b.status === 'accepted').length;
+      statDeclined.textContent = bookings.filter(b => b.status === 'declined').length;
+      // Filter
+      if (filter !== 'all') bookings = bookings.filter(b => b.status === filter);
+      bookingsList.innerHTML = '';
+      if (bookings.length === 0) {
+        emptyMsg.style.display = 'block';
+        return;
+      } else {
+        emptyMsg.style.display = 'none';
+      }
+      bookings.forEach((b, i) => {
+        const card = document.createElement('div');
+        card.className = 'admin-booking-card fade-in';
+        setTimeout(() => card.classList.add('in-view'), 100 + i * 80);
+        card.innerHTML = `
+          <div class="admin-booking-info">
+            <div><strong>Name:</strong> ${b.name}</div>
+            <div><strong>Stay:</strong> ${formatDate(b.startDate)} → ${formatDate(b.endDate)}</div>
+            <div><strong>Message:</strong> ${b.message || '<em>None</em>'}</div>
+            <div class="admin-status admin-status-${b.status}">${b.status.charAt(0).toUpperCase() + b.status.slice(1)}</div>
+          </div>
+          <div class="admin-booking-actions">
+            <button class="btn" data-action="accept" data-idx="${i}" ${b.status==='accepted'?'disabled':''}>✅ Accept</button>
+            <button class="btn" data-action="decline" data-idx="${i}" ${b.status==='declined'?'disabled':''}>❌ Decline</button>
+          </div>
+        `;
+        bookingsList.appendChild(card);
+      });
+    }
+    // Accept/Decline handler
+    bookingsList.addEventListener('click', e => {
+      if (e.target.tagName === 'BUTTON' && e.target.dataset.action) {
+        const idx = +e.target.dataset.idx;
+        const action = e.target.dataset.action;
+        let bookings = getBookings();
+        if (bookings[idx]) {
+          bookings[idx].status = action === 'accept' ? 'accepted' : 'declined';
+          setBookings(bookings);
+          renderBookings();
+        }
+      }
+    });
+    // Filter
+    statusFilter.addEventListener('change', renderBookings);
+    // Download CSV
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const bookings = getBookings();
+      if (!bookings.length) return alert('No bookings to download.');
+      const csv = [
+        ['Name','Start Date','End Date','Message','Status'],
+        ...bookings.map(b => [b.name, b.startDate, b.endDate, b.message, b.status])
+      ].map(row => row.map(field => '"'+String(field).replace(/"/g,'""')+'"').join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'paradise_bookings.csv';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);}, 100);
+    });
+    // Clear All
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      if (confirm('Clear all bookings? This cannot be undone.')) {
+        setBookings([]);
+        renderBookings();
+      }
+    });
+    // Helper: format date as Month Day, Year
+    function formatDate(str) {
+      if (!str) return '';
+      const d = new Date(str);
+      return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    // Animate fade-in/slide-in
+    function animateInView() {
+      document.querySelectorAll('.fade-in, .slide-in, .fade-up, .reveal').forEach(el => {
+        if (el.classList.contains('in-view')) return;
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight - 60) {
+          el.classList.add('in-view');
+        }
+      });
+    }
+    window.addEventListener('scroll', animateInView);
+    setTimeout(animateInView, 400);
+  </script>
+</body>
+</html>

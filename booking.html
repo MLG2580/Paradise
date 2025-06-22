@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Your Stay | The Paradise Lagoon</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <!-- Litepicker CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css" />
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      emailjs.init('ByaG-6Bhn5FqtAzMs');
+    });
+  </script>
+</head>
+<body>
+  <header class="navbar">
+    <div class="container">
+      <h1 class="logo">The Paradise Lagoon</h1>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="index.html#activities">Activities</a></li>
+          <li><a href="index.html#gallery">Gallery</a></li>
+          <li><a href="index.html#testimonials">Reviews</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <section class="booking-hero fade-in">
+      <div class="container">
+        <h2 class="hero-title">Book Your Stay</h2>
+        <p class="hero-tagline">Reserve your private escape at The Paradise Lagoon</p>
+      </div>
+      <div class="hero-bg-floating"></div>
+    </section>
+    <section class="booking-section slide-in">
+      <div class="container booking-flex">
+        <!-- Minimal Booking Form -->
+        <form class="booking-form" id="bookingForm" autocomplete="off">
+          <!-- Modern date range picker -->
+          <div class="input-group">
+            <label for="dateRange">Select Dates</label>
+            <span class="input-icon">📅</span>
+            <input type="text" id="dateRange" name="dateRange" required readonly placeholder="Choose your stay dates" style="background:#fafdff;cursor:pointer;">
+          </div>
+          <div class="input-group">
+            <label for="guestName">Your Name</label>
+            <span class="input-icon">👤</span>
+            <input type="text" id="guestName" name="guestName" required placeholder="Enter your name">
+          </div>
+          <div class="input-group">
+            <label for="message">Message (optional)</label>
+            <span class="input-icon">💬</span>
+            <textarea id="message" name="message" rows="2" placeholder="Add a message (optional)"></textarea>
+          </div>
+          <!-- Real-time booked dates display -->
+          <div id="bookedDatesDisplay" style="margin: 0.7rem 0 0.5rem 0; font-size: 0.98rem; color: #d32f2f;"></div>
+          <!-- Stylish confirm button -->
+          <button type="submit" class="btn btn-primary btn-lg">Confirm Booking</button>
+        </form>
+        <!-- Booking Success Message -->
+        <div class="booking-success fade-in" id="bookingSuccess" style="display:none;">
+          <div class="success-icon">🎉</div>
+          <h3>Booking submitted successfully!</h3>
+          <p id="successMsg">We’ll contact you soon.</p>
+          <p>Manager Email: <a href="mailto:phatsakorn2580@gmail.com">phatsakorn2580@gmail.com</a></p>
+        </div>
+      </div>
+    </section>
+    <!-- Check status section -->
+    <section class="booking-section slide-in">
+      <div class="container booking-flex">
+        <form class="booking-form" id="statusForm" autocomplete="off">
+          <div class="input-group">
+            <label for="statusName">Check My Booking Status</label>
+            <span class="input-icon">👤</span>
+            <input type="text" id="statusName" name="statusName" required placeholder="Enter your name">
+          </div>
+          <button type="submit" class="btn btn-primary">Check Status</button>
+        </form>
+        <div class="booking-success fade-in" id="statusResult" style="display:none;"></div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2024 The Paradise Lagoon. All rights reserved.</p>
+    </div>
+  </footer>
+  <!-- Litepicker JS -->
+  <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+  <script>
+    // --- Modern date range picker with disabled booked dates ---
+    function getAllBookedRanges() {
+      let bookings = JSON.parse(localStorage.getItem('paradise_bookings')) || [];
+      return bookings.filter(b => b.status === 'pending' || b.status === 'accepted')
+        .map(b => ({ start: b.startDate, end: b.endDate }));
+    }
+    function getDisabledDates() {
+      // Returns an array of all dates (YYYY-MM-DD) that are booked
+      const ranges = getAllBookedRanges();
+      const disabled = [];
+      ranges.forEach(r => {
+        let d = new Date(r.start);
+        const end = new Date(r.end);
+        while (d <= end) {
+          disabled.push(d.toISOString().split('T')[0]);
+          d.setDate(d.getDate() + 1);
+        }
+      });
+      return disabled;
+    }
+    // --- Litepicker setup ---
+    let selectedStart = null, selectedEnd = null;
+    const picker = new Litepicker({
+      element: document.getElementById('dateRange'),
+      singleMode: false,
+      numberOfMonths: 2,
+      numberOfColumns: 2,
+      minDate: new Date().toISOString().split('T')[0],
+      format: 'YYYY-MM-DD',
+      tooltipText: { one: 'night', other: 'nights' },
+      tooltipNumber: (totalDays) => totalDays - 1,
+      lockDays: getDisabledDates(),
+      setup: (picker) => {
+        picker.on('selected', (start, end) => {
+          selectedStart = start.format('YYYY-MM-DD');
+          selectedEnd = end.format('YYYY-MM-DD');
+        });
+      },
+      beforeShowDay: (date) => {
+        // Visually mark booked dates
+        const d = date.format('YYYY-MM-DD');
+        if (getDisabledDates().includes(d)) {
+          return [false, 'booked-date', 'Booked'];
+        }
+        return [true, '', ''];
+      }
+    });
+    // --- Booked dates display ---
+    function formatRange(start, end) {
+      const s = new Date(start);
+      const e = new Date(end);
+      if (start === end) return s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    }
+    function displayBookedDates() {
+      const booked = getAllBookedRanges();
+      const el = document.getElementById('bookedDatesDisplay');
+      if (!booked.length) {
+        el.textContent = 'All dates currently available!';
+        el.style.color = '#388e3c';
+        return;
+      }
+      el.innerHTML = '<b>Unavailable:</b> ' + booked.map(r => formatRange(r.start, r.end)).join(', ');
+      el.style.color = '#d32f2f';
+    }
+    displayBookedDates();
+    // --- Booking form logic ---
+    const bookingForm = document.getElementById('bookingForm');
+    const bookingSuccess = document.getElementById('bookingSuccess');
+    const successMsg = document.getElementById('successMsg');
+    bookingForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const guestName = document.getElementById('guestName').value.trim();
+      const message = document.getElementById('message').value.trim();
+      // Use Litepicker's selected dates
+      if (!selectedStart || !selectedEnd) {
+        alert('Please select your stay dates.');
+        return;
+      }
+      // Check for overlap
+      const disabled = getDisabledDates();
+      let d = new Date(selectedStart);
+      const end = new Date(selectedEnd);
+      let conflict = false;
+      while (d <= end) {
+        if (disabled.includes(d.toISOString().split('T')[0])) conflict = true;
+        d.setDate(d.getDate() + 1);
+      }
+      if (conflict) {
+        alert('Selected dates are unavailable. Please choose another range.');
+        return;
+      }
+      if (!guestName) {
+        alert('Please enter your name.');
+        return;
+      }
+      // Save booking to localStorage
+      const bookingObj = {
+        name: guestName,
+        startDate: selectedStart,
+        endDate: selectedEnd,
+        message: message,
+        status: 'pending'
+      };
+      let bookings = JSON.parse(localStorage.getItem('paradise_bookings')) || [];
+      bookings.push(bookingObj);
+      localStorage.setItem('paradise_bookings', JSON.stringify(bookings));
+      // Animate confirmation
+      bookingForm.style.display = 'none';
+      bookingSuccess.style.display = 'block';
+      bookingSuccess.classList.add('in-view');
+      successMsg.textContent = `✅ New booking request for ${formatDate(selectedStart)} to ${formatDate(selectedEnd)}. We’ll contact you soon.`;
+      displayBookedDates();
+      picker.setLockDays(getDisabledDates());
+    });
+    // --- Check My Booking Status logic ---
+    const statusForm = document.getElementById('statusForm');
+    const statusResult = document.getElementById('statusResult');
+    statusForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('statusName').value.trim().toLowerCase();
+      let bookings = JSON.parse(localStorage.getItem('paradise_bookings')) || [];
+      // Find latest booking for this name (case-insensitive)
+      const userBookings = bookings.filter(b => b.name && b.name.toLowerCase() === name);
+      if (userBookings.length === 0) {
+        statusResult.style.display = 'block';
+        statusResult.innerHTML = '<div class="success-icon">❓</div><h3>No booking found for this name.</h3>';
+        return;
+      }
+      const latest = userBookings[userBookings.length - 1];
+      let msg = `Your booking from ${formatDate(latest.startDate)} to ${formatDate(latest.endDate)} is `;
+      if (latest.status === 'accepted') msg += '✅ <b>accepted</b>.';
+      else if (latest.status === 'declined') msg += '❌ <b>declined</b>.';
+      else msg += '⏳ <b>still pending approval</b>.';
+      statusResult.style.display = 'block';
+      statusResult.innerHTML = `<div class="success-icon">📅</div><h3>${msg}</h3>`;
+    });
+    // --- Helper: format date as Month Day, Year ---
+    function formatDate(str) {
+      const d = new Date(str);
+      return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    // --- Intersection Observer for reveal animations ---
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.fade-in, .slide-in, .fade-up, .reveal').forEach(el => {
+      observer.observe(el);
+    });
+  </script>
+  <style>
+    /* Visually mark booked dates in Litepicker */
+    .litepicker .booked-date {
+      background: #ffeaea !important;
+      color: #d32f2f !important;
+      text-decoration: line-through;
+      opacity: 0.6;
+      cursor: not-allowed !important;
+    }
+  </style>
+</body>
+</html>

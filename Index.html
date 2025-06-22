@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Paradise Lagoon | Luxury Pool Villa</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <!-- Particles.js for animated background -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <!-- GSAP for advanced animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <!-- Lottie Web for vector animations -->
+  <script src="https://unpkg.com/lottie-web@5.12.2/build/player/lottie.min.js"></script>
+  <style>
+    /* Floating SVGs */
+    .floating-svg {
+      position: absolute;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+    .svg-palm { left: 5vw; top: 12vh; width: 70px; }
+    .svg-floatie { right: 7vw; top: 18vh; width: 60px; }
+    .svg-bird { left: 50vw; top: 7vh; width: 50px; }
+    .svg-cloud { right: 15vw; top: 5vh; width: 90px; }
+    /* 3D pop illustration */
+    .villa-3d {
+      width: 220px;
+      filter: drop-shadow(0 12px 32px rgba(79,195,247,0.18));
+      transform: perspective(600px) rotateY(-12deg) scale(1.08);
+      transition: transform 0.5s cubic-bezier(.4,2,.6,1);
+      margin: 0 auto;
+      display: block;
+    }
+    .villa-3d:hover {
+      transform: perspective(600px) rotateY(0deg) scale(1.13);
+    }
+    /* Sticky Book Now Button */
+    .sticky-book-btn {
+      position: fixed;
+      bottom: 2.2rem;
+      right: 2.2rem;
+      z-index: 1000;
+      background: linear-gradient(120deg, #4fc3f7 60%, #ffe082 100%);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 1.1rem 2.5rem;
+      font-size: 1.3rem;
+      font-weight: 700;
+      box-shadow: 0 4px 24px rgba(79,195,247,0.18);
+      cursor: pointer;
+      animation: pulse-glow 2.2s infinite;
+      transition: transform 0.2s;
+      outline: none;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .sticky-book-btn:hover {
+      transform: scale(1.07);
+      background: linear-gradient(120deg, #ffe082 60%, #4fc3f7 100%);
+      color: #1d1d1f;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 4px 24px rgba(79,195,247,0.18), 0 0 0 0 #ffe08255; }
+      50% { box-shadow: 0 8px 32px rgba(230,185,128,0.22), 0 0 0 18px #ffe08222; }
+    }
+    /* Bouncy button effect */
+    .btn, .btn-nav, .btn-primary, .btn-lg {
+      transition: transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s;
+    }
+    .btn:hover, .btn-nav:hover, .btn-primary:hover, .btn-lg:hover {
+      transform: scale(1.08) translateY(-2px) rotate(-2deg);
+      box-shadow: 0 6px 24px rgba(230,185,128,0.18);
+    }
+    /* Lottie container */
+    .lottie-hero {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 1.2rem auto;
+      z-index: 3;
+      position: relative;
+    }
+    /* Parallax container for floating SVGs */
+    .parallax-container {
+      position: absolute;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 2;
+    }
+    /* Particles background */
+    #particles-js {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Animated background using particles.js -->
+  <div id="particles-js"></div>
+  <!-- Floating SVG decoration (parallax) -->
+  <div class="parallax-container">
+    <svg class="floating-svg svg-palm" viewBox="0 0 64 64"><!-- Palm tree SVG --><ellipse cx="32" cy="60" rx="10" ry="4" fill="#e6b980"/><rect x="28" y="30" width="8" height="30" rx="4" fill="#8d6748"/><path d="M32 30 Q20 20 10 30 Q25 25 32 30 Q39 25 54 30 Q44 20 32 30" fill="#4fc3f7"/></svg>
+    <svg class="floating-svg svg-floatie" viewBox="0 0 64 64"><!-- Floatie SVG --><ellipse cx="32" cy="32" rx="20" ry="10" fill="#ffe082"/><ellipse cx="32" cy="32" rx="12" ry="6" fill="#fff8f0"/></svg>
+    <svg class="floating-svg svg-bird" viewBox="0 0 64 32"><!-- Bird SVG --><path d="M2 16 Q16 2 32 16 Q48 2 62 16" stroke="#4fc3f7" stroke-width="3" fill="none"/></svg>
+    <svg class="floating-svg svg-cloud" viewBox="0 0 64 32"><!-- Cloud SVG --><ellipse cx="20" cy="20" rx="16" ry="10" fill="#fff" opacity="0.7"/><ellipse cx="40" cy="16" rx="12" ry="8" fill="#fff" opacity="0.6"/></svg>
+  </div>
+  <header class="navbar">
+    <div class="container">
+      <h1 class="logo">The Paradise Lagoon</h1>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#about">About</a></li>
+          <li><a href="#activities">Activities</a></li>
+          <li><a href="#gallery">Gallery</a></li>
+          <li><a href="#testimonials">Reviews</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="booking.html" class="btn btn-nav">Book Now</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <!-- Hero Section with Lottie animation -->
+    <section id="hero" class="hero-section fade-in">
+      <div class="container">
+        <div class="lottie-hero" id="lottie-hero"></div>
+        <h2 class="hero-title">The Paradise Lagoon</h2>
+        <p class="hero-tagline">Your Private Escape by the Water</p>
+        <img src="https://assets7.lottiefiles.com/private_files/lf30_6gkzv1gk.json" alt="3D Villa" class="villa-3d" />
+        <a href="booking.html" class="btn btn-primary btn-lg">Book Now</a>
+      </div>
+      <div class="hero-bg-floating"></div>
+    </section>
+    <!-- About Section -->
+    <section id="about" class="about-section slide-in">
+      <div class="container about-flex">
+        <div class="about-text">
+          <h2>About the Villa</h2>
+          <p>Welcome to The Paradise Lagoon, your luxury pool villa retreat. Surrounded by lush tropical gardens and tranquil waters, our villa offers the perfect blend of privacy, comfort, and elegance. Enjoy spacious living, a private infinity pool, and world-class amenities designed for your ultimate relaxation.</p>
+        </div>
+        <div class="about-image">
+          <!-- Villa main image -->
+          <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80" alt="Paradise Lagoon Villa" class="villa-img">
+        </div>
+      </div>
+    </section>
+    <!-- Activities & Nearby Homes -->
+    <section id="activities" class="activities-section">
+      <div class="container">
+        <h2>Activities & Nearby Homes</h2>
+        <div class="activities-list">
+          <div class="activity-block fade-up">
+            <!-- Circle image for nearby house -->
+            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=200&q=80" class="circle-img" alt="Kayaking">
+            <div class="activity-text">
+              <h3>Kayaking & Paddleboarding</h3>
+              <p>Explore the serene lagoon with complimentary kayaks and paddleboards, perfect for adventure and relaxation.</p>
+            </div>
+          </div>
+          <div class="activity-block fade-up">
+            <!-- Circle image for nearby house -->
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&q=80" class="circle-img" alt="Beach Access">
+            <div class="activity-text">
+              <h3>Private Beach Access</h3>
+              <p>Step onto soft sands and enjoy exclusive access to a pristine, secluded beach just steps from your villa.</p>
+            </div>
+          </div>
+          <div class="activity-block fade-up">
+            <!-- Circle image for nearby house -->
+            <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=200&q=80" class="circle-img" alt="Nearby Villas">
+            <div class="activity-text">
+              <h3>Luxury Spa & Nearby Villas</h3>
+              <p>Indulge in a rejuvenating spa experience or visit neighboring luxury villas for exclusive events and gatherings.</p>
+            </div>
+          </div>
+          <div class="activity-block fade-up">
+            <!-- Circle image for nearby house -->
+            <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=200&q=80" class="circle-img" alt="Dining">
+            <div class="activity-text">
+              <h3>Fine Dining & Sunset Bar</h3>
+              <p>Savor gourmet cuisine and signature cocktails at our sunset bar, overlooking the tranquil lagoon.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Photo Gallery Section -->
+    <section id="gallery" class="gallery-section fade-in">
+      <div class="container">
+        <h2>Photo Gallery</h2>
+        <div class="gallery-grid">
+          <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" alt="Villa Pool">
+          <img src="https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=400&q=80" alt="Bedroom">
+          <img src="https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=400&q=80" alt="Living Room">
+          <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" alt="Dining Area">
+        </div>
+      </div>
+    </section>
+    <!-- Guest Testimonials -->
+    <section id="testimonials" class="testimonials-section slide-in">
+      <div class="container">
+        <h2>Guest Testimonials</h2>
+        <div class="testimonials-list">
+          <div class="testimonial-card fade-in">
+            <div class="testimonial-profile">
+              <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Guest 1" class="testimonial-img">
+              <span class="testimonial-name">Anna S.</span>
+            </div>
+            <blockquote>“Absolutely stunning! The villa was spotless, the pool was amazing, and the staff made us feel like royalty.”</blockquote>
+          </div>
+          <div class="testimonial-card fade-in">
+            <div class="testimonial-profile">
+              <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Guest 2" class="testimonial-img">
+              <span class="testimonial-name">James L.</span>
+            </div>
+            <blockquote>“A true paradise. We loved the private beach and the beautiful sunsets. Will definitely return!”</blockquote>
+          </div>
+          <div class="testimonial-card fade-in">
+            <div class="testimonial-profile">
+              <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Guest 3" class="testimonial-img">
+              <span class="testimonial-name">Maria P.</span>
+            </div>
+            <blockquote>“The best vacation experience we’ve ever had. The villa exceeded all our expectations!”</blockquote>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Google Map Section -->
+    <section id="map" class="map-section fade-in">
+      <div class="container">
+        <h2>Find Us</h2>
+        <div class="map-embed">
+          <iframe src="https://www.google.com/maps?q=265%20%E0%B8%A1.1%20Sirindhorn%20District,%20Ubon%20Ratchathani%2034350,%20Thailand&output=embed" width="100%" height="320" style="border:0; border-radius:16px;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <div style="margin-top:0.7rem; font-size:1.08rem; color:#444; text-align:center;">
+            265 ม.1 Sirindhorn District, Ubon Ratchathani 34350, Thailand
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Contact Info -->
+    <section id="contact" class="contact-section slide-in">
+      <div class="container contact-flex">
+        <div class="contact-info">
+          <h2>Contact Us</h2>
+          <ul class="contact-list">
+            <li><a href="mailto:phatsakorn2580@gmail.com" class="contact-link"><span class="icon">📧</span> phatsakorn2580@gmail.com</a></li>
+            <li><a href="tel:+66999999999" class="contact-link"><span class="icon">📞</span> +66 99 999 9999</a></li>
+            <li><a href="https://instagram.com/yourvilla" target="_blank" class="contact-link"><span class="icon">📸</span> Instagram</a></li>
+            <li><a href="https://facebook.com/yourvilla" target="_blank" class="contact-link"><span class="icon">📘</span> Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <button id="backToTop" title="Back to top">↑</button>
+  </main>
+  <!-- Sticky animated Book Now button -->
+  <button class="sticky-book-btn" onclick="window.location.href='booking.html'">
+    🏝️ Book Now
+  </button>
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2024 The Paradise Lagoon. All rights reserved.</p>
+    </div>
+  </footer>
+  <script>
+    // --- Particles.js background config ---
+    particlesJS('particles-js', {
+      particles: {
+        number: { value: 38, density: { enable: true, value_area: 800 } },
+        color: { value: ['#4fc3f7', '#ffe082', '#fff8f0'] },
+        shape: { type: 'circle' },
+        opacity: { value: 0.25, random: true },
+        size: { value: 12, random: true },
+        move: { enable: true, speed: 1.2, direction: 'none', random: true, straight: false, out_mode: 'out' }
+      },
+      interactivity: {
+        detect_on: 'canvas',
+        events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' } },
+        modes: { repulse: { distance: 80 }, push: { particles_nb: 4 } }
+      },
+      retina_detect: true
+    });
+    // --- Lottie animation in hero ---
+    lottie.loadAnimation({
+      container: document.getElementById('lottie-hero'),
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      path: 'https://assets7.lottiefiles.com/packages/lf20_2glqweqs.json' // Example: sun and waves
+    });
+    // --- Parallax effect for floating SVGs ---
+    document.addEventListener('mousemove', function(e) {
+      const x = (e.clientX / window.innerWidth - 0.5) * 30;
+      const y = (e.clientY / window.innerHeight - 0.5) * 30;
+      document.querySelectorAll('.floating-svg').forEach((el, i) => {
+        el.style.transform = `translate(${x * (i%2===0?1:-1)}px, ${y * (i%2===0?1.2:-1.2)}px)`;
+      });
+    });
+    // --- GSAP floating animation for SVGs ---
+    gsap.to('.svg-palm', { y: 18, repeat: -1, yoyo: true, duration: 4, ease: 'sine.inOut' });
+    gsap.to('.svg-floatie', { y: -14, repeat: -1, yoyo: true, duration: 3.2, ease: 'sine.inOut' });
+    gsap.to('.svg-bird', { x: 22, repeat: -1, yoyo: true, duration: 5, ease: 'sine.inOut' });
+    gsap.to('.svg-cloud', { x: -18, repeat: -1, yoyo: true, duration: 6, ease: 'sine.inOut' });
+    // --- Intersection Observer for reveal animations (existing) ---
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.fade-in, .slide-in, .fade-up, .reveal').forEach(el => {
+      observer.observe(el);
+    });
+    // --- Smooth scroll for nav links (existing) ---
+    document.querySelectorAll('.nav-links a[href^="#"]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href.startsWith('#')) {
+          e.preventDefault();
+          document.querySelector(href).scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+    // --- Back to top button (existing) ---
+    const backToTop = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        backToTop.style.display = 'block';
+      } else {
+        backToTop.style.display = 'none';
+      }
+    });
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>
